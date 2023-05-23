@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-import dataset
+from torch.utils.data import Dataset
 import torchvision
 class NeuralNetwork(nn.Module):  
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -23,7 +23,7 @@ class NeuralNetwork(nn.Module):
         a_2 = self.softmax(z_2)       # 16x10      -> 16x10
         return a_2
 
-    def load_data():
+    def load_data(self):
         imagenet_data = torchvision.datasets.ImageNet('data')
         data_loader = torch.utils.data.DataLoader(imagenet_data,batch_size=10,shuffle=True)
         
@@ -32,9 +32,11 @@ class NeuralNetwork(nn.Module):
         print(f"Labels batch shape: {train_labels.size()}")
         
         label = train_labels[0]
+        x, y = next(iter(data_loader))
         print(f"Label: {label}")
+        return x,y
     # -----Treenimine-----#
-    def train():
+    def train(self):
         
         net = NeuralNetwork()
         loss_fn = nn.MSELoss()
@@ -44,7 +46,7 @@ class NeuralNetwork(nn.Module):
 
         for epoch in range(max_epochs):
             with torch.no_grad():         # me ei soovi arvutada gradiente
-                for x, y in dataset:  # käime läbi kõik miniplokid
+                for x, y in self.load_data():  # käime läbi kõik miniplokid
                     
                     y_hat = net(x)        # teeme ennustuse
 
